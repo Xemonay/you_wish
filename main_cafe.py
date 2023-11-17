@@ -4,6 +4,7 @@ from sqlite3 import connect
 
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QMainWindow
+from choose import CafeManage
 
 template = '''<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
@@ -112,7 +113,7 @@ template = '''<?xml version="1.0" encoding="UTF-8"?>
      <rect>
       <x>20</x>
       <y>360</y>
-      <width>61</width>
+      <width>71</width>
       <height>31</height>
      </rect>
     </property>
@@ -123,7 +124,7 @@ template = '''<?xml version="1.0" encoding="UTF-8"?>
      </font>
     </property>
     <property name="text">
-     <string>Discription'</string>
+     <string>Description'</string>
     </property>
    </widget>
    <widget class="QLabel" name="ground">
@@ -145,7 +146,7 @@ template = '''<?xml version="1.0" encoding="UTF-8"?>
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="discription">
+   <widget class="QLabel" name="description">
     <property name="geometry">
      <rect>
       <x>100</x>
@@ -240,6 +241,44 @@ template = '''<?xml version="1.0" encoding="UTF-8"?>
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>500</x>
+      <y>210</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>16</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>ID</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="edit_t">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>460</y>
+      <width>171</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Microsoft YaHei UI Light</family>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Edit</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -265,28 +304,33 @@ class Cafe(QMainWindow):
         con = connect('coffee.sqlite')
         self.c = con.cursor()
         uic.loadUi(io.StringIO(template), self)
+        self.edit_t.clicked.connect(self.open_check16)
         self.comboBox.addItem('Please Choose a Coffee16')
         self.comboBox.currentIndexChanged.connect(self.yeah)
         a = self.c.execute('''SELECT * FROM cafe''').fetchall()
-        self.alpha = {x[1]: {y: j for y, j in zip(('fry_str', 'ground', 'discrip', 'price', 'volume'), x[2:])}
+        self.alpha = {x[1]: {y: j for y, j in zip(('fry_str', 'ground', 'descrip', 'price', 'volume'), x[2:])}
                       for x in a}
-        for x in self.c.execute('''SELECT name FROM cafe''').fetchall()[0]:
-            self.comboBox.addItem(x)
+        for x in self.c.execute('''SELECT name FROM cafe''').fetchall():
+            self.comboBox.addItem(x[0])
 
     def yeah(self):
         a = self.comboBox.currentText()
         if a != 'Please Choose a Coffee16':
             self.fry_str.setText(self.alpha.get(a).get('fry_str'))
             self.ground.setText(self.alpha.get(a).get('ground'))
-            self.discription.setText(self.alpha.get(a).get('discrip'))
+            self.description.setText(self.alpha.get(a).get('descrip'))
             self.price.setText(str(self.alpha.get(a).get('price')))
             self.volume.setText(self.alpha.get(a).get('volume'))
         else:
             self.fry_str.setText('')
             self.ground.setText('')
-            self.discription.setText('')
+            self.description.setText('')
             self.price.setText('')
             self.volume.setText('')
+
+    def open_check16(self):
+        self.check16 = CafeManage(self)
+        self.check16.show()
 
 
 if __name__ == '__main__':
