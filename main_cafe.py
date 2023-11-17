@@ -301,21 +301,21 @@ template = '''<?xml version="1.0" encoding="UTF-8"?>
 class Cafe(QMainWindow):
     def __init__(self):
         super().__init__()
-        con = connect('coffee.sqlite')
-        self.c = con.cursor()
+        con = connect('data//coffee.sqlite')
+        c = con.cursor()
         uic.loadUi(io.StringIO(template), self)
         self.edit_t.clicked.connect(self.open_check16)
         self.comboBox.addItem('Please Choose a Coffee16')
         self.comboBox.currentIndexChanged.connect(self.yeah)
-        a = self.c.execute('''SELECT * FROM cafe''').fetchall()
+        a = c.execute('''SELECT * FROM cafe''').fetchall()
         self.alpha = {x[1]: {y: j for y, j in zip(('fry_str', 'ground', 'descrip', 'price', 'volume'), x[2:])}
                       for x in a}
-        for x in self.c.execute('''SELECT name FROM cafe''').fetchall():
+        for x in c.execute('''SELECT name FROM cafe''').fetchall():
             self.comboBox.addItem(x[0])
 
     def yeah(self):
         a = self.comboBox.currentText()
-        if a != 'Please Choose a Coffee16':
+        if a != 'Please Choose a Coffee16' and a:
             self.fry_str.setText(self.alpha.get(a).get('fry_str'))
             self.ground.setText(self.alpha.get(a).get('ground'))
             self.description.setText(self.alpha.get(a).get('descrip'))
@@ -327,6 +327,18 @@ class Cafe(QMainWindow):
             self.description.setText('')
             self.price.setText('')
             self.volume.setText('')
+
+    def update(self):
+        self.comboBox.clear()
+        con = connect('data//coffee.sqlite')
+        c = con.cursor()
+        self.comboBox.addItem('Please Choose a Coffee16')
+        a = c.execute('''SELECT * FROM cafe''').fetchall()
+        self.alpha = {x[1]: {y: j for y, j in zip(('fry_str', 'ground', 'descrip', 'price', 'volume'), x[2:])}
+                      for x in a}
+        for x in c.execute('''SELECT name FROM cafe''').fetchall():
+            self.comboBox.addItem(x[0])
+        self.comboBox.currentIndexChanged.connect(self.yeah)
 
     def open_check16(self):
         self.check16 = CafeManage(self)

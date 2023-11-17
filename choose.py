@@ -349,14 +349,14 @@ class CafeManage(QMainWindow):
     def __init__(self, main):
         super().__init__()
         self.main = main
-        con = connect('coffee.sqlite')
-        self.c = con.cursor()
+        con = connect('data//coffee.sqlite')
+        c = con.cursor()
         uic.loadUi(io.StringIO(template), self)
-        a = self.c.execute('''SELECT * FROM cafe''').fetchall()
+        a = c.execute('''SELECT * FROM cafe''').fetchall()
         self.alpha = {x[1]: {y: j for y, j in zip(('fry_str', 'ground', 'discrip', 'price', 'volume'), x[2:])}
                       for x in a}
-        for x in self.c.execute('''SELECT name FROM cafe''').fetchall()[0]:
-            self.comboBox.addItem(x)
+        for x in c.execute('''SELECT name FROM cafe''').fetchall():
+            self.comboBox.addItem(x[0])
         self.add_t.clicked.connect(self.add)
         self.update_t.clicked.connect(self.update016)
 
@@ -364,7 +364,7 @@ class CafeManage(QMainWindow):
         if (
                 self.name.text() != '' and self.fry_str.text() != '' and self.ground.text() != '' and
                 self.description.text != '' and self.price.text().isdigit() and self.volume.text() != ''):
-            con = connect('coffee.sqlite')
+            con = connect('data//coffee.sqlite')
             c1 = con.cursor()
             c1.execute('''INSERT INTO cafe(name, fry_str, ground, 
                 descrip, price, volume) VALUES (?, ?, ?, ?, ?, ?)''',
@@ -375,12 +375,13 @@ class CafeManage(QMainWindow):
             con.close()
             self.mistake.setText('SUCCESS')
             self.main.update()
+            self.update()
         else:
             self.mistake.setText('Something is not cor')
 
     def update016(self):
         if self.price.text() == '' or self.price.text().isdigit():
-            con = connect('coffee.sqlite')
+            con = connect('data//coffee.sqlite')
             c1 = con.cursor()
 
             if self.name.text() != '':
@@ -415,8 +416,20 @@ class CafeManage(QMainWindow):
             con.close()
             self.mistake.setText('SUCCESS')
             self.main.update()
+            self.update()
         else:
             self.mistake.setText('Something is not cor')
+
+    def update(self):
+        self.comboBox.clear()
+        con = connect('data//coffee.sqlite')
+        c = con.cursor()
+        self.comboBox.addItem('Please Choose a Coffee16')
+        a = c.execute('''SELECT * FROM cafe''').fetchall()
+        self.alpha = {x[1]: {y: j for y, j in zip(('fry_str', 'ground', 'descrip', 'price', 'volume'), x[2:])}
+                      for x in a}
+        for x in c.execute('''SELECT name FROM cafe''').fetchall():
+            self.comboBox.addItem(x[0])
 
 
 if __name__ == '__main__':
